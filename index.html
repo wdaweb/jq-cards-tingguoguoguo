@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(-45deg, rgba(173, 238, 255, 1) 0%, rgba(255, 215, 242, 1) 100%);
+      cursor: url(./cursor1.png) 50 50, auto;
+    }
+
+    #game {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      width: 150px;
+      height: 270px;
+      position: relative;
+      margin: 5px;
+      transform-style: preserve-3d;
+      transition-duration: 1s;
+    }
+
+    .card-front {
+      width: 100%;
+      height: 100%;
+      background-image: url('./17card/done/1701.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      backface-visibility: hidden;
+
+    }
+
+    .card-back {
+      width: 100%;
+      height: 100%;
+      background-image: url('./17card/done/cardback.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+    }
+
+    .card-close {
+      transform: rotateY(180deg);
+    }
+
+    #info {
+      display: flex;
+      justify-items: flex-start;
+      align-items: center;
+      position: absolute;
+      bottom: 1rem;
+      right: 0.4rem;
+      width: 1550px;
+      height: 350px;
+      /* border: 1px solid */
+    }
+
+    #info img {
+      height: 350px;
+      box-shadow: 10px 10px 15px #494949;
+    }
+
+    #info p {
+      margin-left: 20px;
+      font-size: 1.5rem;
+      color: black;
+    }
+
+    #count {
+      width: 500px;
+      height: 350px;
+      font-family: 'RocknRoll One', sans-serif;
+      text-align: center;
+      font-size: 1.5rem;
+      /* background: #c47e7e; */
+    }
+  </style>
+</head>
+
+<body>
+  <audio src="./20.mp3"></audio>
+  <!-- <div class="card">
+    <div class="card-front"></div>
+    <div class="card-back"></div>
+  </div> -->
+  <div id="info">
+    <div id="count">
+      <h1>Moves: <span id="moves"></span> </h1>
+      <h1>Time: <span id="time"></span>s</h1>
+    </div>
+    <img id="infoImage" src="">
+    <p id="infoText"></p>
+  </div>
+  <div id="game">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js'
+      integrity='sha512-zB7yJLSASiSevQmWCrQaq+z/f5zRIa884hwWgmK1oI3MfolIzKcpDtyfBsrGqUi/hMCObVwr/+SZTByOqh0zkQ=='
+      crossorigin='anonymous'></script>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js
+      integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      document.addEventListener("click", function () {
+        document.querySelector("audio").play();
+      });
+      let clickCount = 0
+      let time = 0
+      let timer = 0
+      let timerStarted = false;
+
+      const cardDescriptions = [
+        ["他有一隻名叫 Kkuma 的狗，他對待她就像對待自己的女兒一樣。", "他認為真實的自己崔勝哲和他的舞台角色S.Coups都是他的重要組成部分。", "在成為十七號成員之前，他訓練了六年。", "他在日本酒吧最喜歡的飲料是生啤酒。", "他的性格類型是ISTP，但他曾經是INFP。", "他曾經擔心失去人氣，但現在不再擔心了。"],
+        ["在他的房間裡，他希望有電動窗簾。", "他最喜歡的飲料包括美式咖啡、香蕉奶、香草拿鐵和草莓奶。", "他認為十七是他的幸福。", "當他訪問日本時，他喜歡去澀谷、原宿和表參道等地方。", "他的 MBTI 人格類型為 ISFJ（根據成員評估）。", "他對養狗、貓、兔子和豚鼠作為寵物很感興趣。", "綽號是天使。"],
+        ["把製作珠子工藝作為一種愛好。", "視十七為他的家人。", "在《每週偶像》中，他提到他會說五種不同的語言。", "經常不回群聊中的消息。", "出生於美國加利福尼亞州洛杉磯。", "17歲時，於洛杉磯韓國城參加集市慶典被星探搭訕。"],
+        ["在中國，Jun 三歲時就開始了童星生涯。", "他經常把中國和韓國的零食藏在包裡。", "他可以在 30 秒內吃掉一個檸檬。", "他是一個愛貓人士。", "當說中文時，他以語速很快而聞名。", "高二時，與朋友們在深圳街道上偶然被星探搭訕。"],
+        ["很崇拜SHINee的泰民。", "他不擅長操作電腦。", "很喜歡老虎，並想成為老虎。", "酒量不好。", "小時候為跆拳道選手，段位為黑帶4段。", "藝名「Hoshi」來自韓語「虎視（호시）」，意指在舞台上擁有像老虎一樣的眼神，同時在日文也有「星星」的意思。"],
+        ["他不喜歡撒嬌。", "業餘時間玩遊戲、讀書和餵貓。", "他很難拍出好看的自拍照。", "喜歡攝影。", "漢字名「圓佑」代表「圓形、幫助」，意為「用圓潤寬容的心去幫助他人」。", "有「八龍中舞蹈機器」的綽號。"],
+        ["他會彈吉他和鋼琴，並且喜歡創作音樂、寫歌詞和製作歌曲。", "他不喜歡身體接觸或與人靠得太近。", "他對喝酒不感興趣。", "他從小就喜歡卡通和動畫節目。", "Woozi 為 Seventeen 的許多歌曲創作並創作了歌詞。", "身高166公分，隊內最矮。"],
+        ["成員們開玩笑地說他像章魚哥。", "他對茶和冥想有著濃厚的興趣。", "他在中國練習了六年舞蹈。", "小時候身體虛弱，於3歲半開始學習武術。", "藝名「THE 8」蘊含了在中國寓意幸運的數字「8」。", "出生於遼寧省海城市，為家中獨子。"],
+        ["MBTI類型是ENTJ； 他以前是ENFJ。", "他有一個 2001 年出生的妹妹。", "偶爾會表現得蠻橫，有點笨拙和邋遢。", "國二放學回家時被星探搭話，在面試中唱的歌是韓國國歌。", "對貓毛過敏。", "身高187公分，隊內最高。"],
+        ["他的左臉頰中間有一顆痣。", "喜歡網上購物，是個購物狂。", "MBTI性格測試，他屬於INFP。", "笑的時候，眼角有皺紋，笑容燦爛。", "嗓門特別大。", "子團夫碩順的隊長。"],
+        ["Seungkwan 從小在濟州長大。", "綽號包括 Mic 先生、MC Boo 和 DJ Boo。", "是大田女子排球隊 Jeonggwanjang Red Sparks 的支持者。", "他喜歡喝美式咖啡。", "是一個情緒化的成員，很容易哭泣。", "他以熱情活潑的性格而聞名，這為他贏得了 Seventeen 氣氛製造者的角色。"],
+        ["他的母親是美國人，父親是韓國人。", "經常戴著耳機。", "不會自拍。", "參加過SHOW ME THE MONEY", "五官像李奧納多˙狄卡皮歐。", "出生於紐約，5歲時舉家搬遷至韓國首爾特別市麻浦區定居。"],
+        ["團體裡年紀最小的。", "父母都是舞者。", "MBTI 性格類型是 ENFJ。", "常常被哥哥們欺負。", "凡事積極努力的性格。", "創作了歌曲《Flower》的編舞。"],
+      ]
+
+      for (let i = 0; i < 26; i++) {
+        $('#game').append(`
+        <div class="card card-close">
+    <div class="card-front"></div>
+    <div class="card-back"></div>
+  </div
+          
+          `)
+      }
+
+
+      $('.card').each(function (index) {
+        const number = index % 13 + 1
+        console.log(index, number)
+        $(this).find('.card-front').css('background-image', `url(./17card/done/17${number}.jpg)`)
+        $(this).attr('data-number', number)
+      })
+
+      for (let i = 0; i < 30; i++) {
+        const randomA = Math.round(Math.random() * 25)
+        const randomB = Math.round(Math.random() * 25)
+        $('.card').eq(randomA).insertAfter($('.card').eq(randomB))
+      }
+
+      function startTimer() {
+        timer = setInterval(function () {
+          time += 10
+          updateTimerDisplay()
+        }, 10)
+      }
+      function updateTimerDisplay() {
+        const seconds = (time / 1000).toFixed(2)
+        $('#time').text(seconds)
+      }
+
+      function stopTimer() {
+        clearInterval(timer)
+      }
+      function resetTimer() {
+        stopTimer()
+        updateTimerDisplay()
+      }
+
+
+      $('#game').on('click', '.card', function () {
+
+        if (!timerStarted) {
+          startTimer();
+          timerStarted = true;
+        }
+
+
+        if (
+          $('.card:not(.card-close)').length < 2 &&
+          $(this).hasClass('card-close') &&
+          !$(this).hasClass('card-ok')
+        ) {
+          $(this).removeClass('card-close')
+        }
+
+        if ($('.card:not(.card-close)').length === 2) {
+          if (
+            $('.card:not(.card-close)').eq(0).attr('data-number') ===
+            $('.card:not(.card-close)').eq(1).attr('data-number')
+          ) {
+            $('.card:not(.card-close)').addClass('card-ok')
+            $('.card:not(.card-close)').fadeTo(1000, 0)
+
+            const infoImageSrc = $('.card:not(.card-close)').eq(0).find('.card-front').css('background-image')
+            console.log(infoImageSrc)
+            const start = infoImageSrc.indexOf('(') + 1;
+            const end = infoImageSrc.lastIndexOf(')');
+            const imageUrl = infoImageSrc.slice(start, end).replace(/["]/g, '')
+            $('#infoImage').attr('src', imageUrl)
+            $('#infoImage').attr('src', imageUrl).hide().fadeIn()
+
+            const cardNumber = $('.card:not(.card-close)').eq(0).attr('data-number')
+            const infoTextArray = cardDescriptions[cardNumber - 1]
+            const infoText = infoTextArray.join("<br>"); // 连接数组中的所有元素并用换行符分隔
+            $('#infoText').html(infoText).hide().fadeIn()
+
+          }
+
+          setTimeout(function () {
+            $('.card:not(.card-close)').addClass('card-close')
+            if ($('.card-ok').length === $('.card').length) {
+              Swal.fire({
+                title: "恭喜過關！",
+                text: `您花了${time / 1000}秒`,
+                imageUrl: "https://i.pinimg.com/originals/19/58/bb/1958bb278444256d1d4f835fda11385e.jpg",
+                imageWidth: 400,
+                imageHeight: 200,
+              });
+              resetTimer()
+            }
+          }, 1000)
+
+          clickCount++
+          $('#moves').text(clickCount)
+
+        }
+      })
+
+
+    </script>
+
+  </div>
+
+
+</body>
+
+</html>
